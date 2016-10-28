@@ -1,4 +1,4 @@
-heimport pycurl
+import pycurl
 import sys
 import urllib2
 import time
@@ -10,7 +10,7 @@ import subprocess
 from subprocess import call
 # from browsermobproxy import Server
 from selenium import webdriver
-#Shllllkdjfksdj
+
 # before running this script, do the following:
 #       sudo easy_install pip
 #       pip install selenium
@@ -67,10 +67,42 @@ def get_stats_sel(url):
     ttfb = driver.execute_script("return " + responseStart + " - " + fetchStart)
     domContentLoaded = driver.execute_script("return " + domComplete + " - " + fetchStart)
     load = driver.execute_script("return " + loadEnd + " - " + fetchStart)
+    pageType = get_page_type(url, driver)
+
 
     driver.quit()
 
-    return ttfb, domContentLoaded, load
+    return ttfb, domContentLoaded, load, pageType
+
+def get_page_type(url, driver):
+
+    page = driver.page_source
+    #We harvest the source code of the page
+    #Find the place in the file we're looking for
+    index = page.find("MarketLive.Reporting.templateType")
+    #currentChar gets set right at the beginning of the quote that the above
+    #variable refers to in the document
+    x = 37
+    currentChar = page[index+x]
+
+    #We'll append letters to type as we encounter them until we encounter
+    #the end of the string
+    #The line in the document will look like this:
+    #MarketLive.Reporting.templateType = 'INDEX';
+    type = ""
+
+    while (currentChar!="'"): #until we get to the '
+        type +=currentChar
+        x+= 1
+        currentChar = page[index+x]
+
+    driver.quit()
+    return type
+
+
+
+
+
 
 # def get_stats(url):
 #     c = pycurl.Curl()
@@ -92,7 +124,8 @@ def get_avg_stats_sel(url, sample_size):
         ttfb_total += stats[0]
         domContent_total += stats[1]
         load_total += stats[2]
-    return ttfb_total / sample_size, domContent_total / sample_size, load_total / sample_size
+        pageType = stats[3]
+    return ttfb_total / sample_size, domContent_total / sample_size, load_total / sample_size, pageType
 
 def print_error_message(error):
     print
@@ -156,18 +189,15 @@ if __name__=="__main__":
     # write data
     for link in get_hyperlinks(baseurl):
         worksheet.write(row, 0, link)
-        stats = []
-        while True : # repeat until load time isn't ridiculous
-            stats = get_avg_stats_sel(baseurl + link, sample_size)
-            if stats[2] < 4000: # a network issue occurred if otherwise
-                break
+        stats = get_avg_stats_sel(baseurl + link, sample_size)
         ttfb = str(stats[0]) + 'ms'
         dom_time = str(stats[1]) + 'ms'
         load_time = str(stats[2]) + 'ms'
+        page_type = str(stats[3])
         worksheet.write(row, 1, ttfb) # ttfb
         worksheet.write(row, 2, dom_time) # dom
         worksheet.write(row, 3, load_time) # load
-        print link + ' ' + ttfb + ' ' + dom_time + ' ' + load_time
+        print link + ' ' + ttfb + ' ' + dom_time + ' ' + load_time + ' ' + page_type
         row += 1
 
     workbook.close()

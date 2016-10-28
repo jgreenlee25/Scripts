@@ -24,6 +24,8 @@ from selenium import webdriver
 
 # TODO: use browsermobproxy for monitoring network traffic (data transfer)
 # TODO: organize excel file by categories and subcategories (scan html to ascertain)
+# TODO: clear cache by bash script instead of recreating driver each time
+# TODO: try Firefox driver instead of Chrome driver
 
 class bcolors:
     HEADER = '\033[95m'
@@ -98,24 +100,6 @@ def get_page_type(url, driver):
 
     driver.quit()
     return type
-
-
-
-
-
-
-# def get_stats(url):
-#     c = pycurl.Curl()
-#     c.setopt(pycurl.URL, url)                    #set url
-#     c.setopt(pycurl.FOLLOWLOCATION, 1)
-#     c.setopt(c.WRITEFUNCTION, lambda x: None);   #don't print
-#     content = c.perform()                        #execute
-#     dns_time = c.getinfo(pycurl.NAMELOOKUP_TIME) #DNS time
-#     conn_time = c.getinfo(pycurl.CONNECT_TIME)   #TCP/IoP 3-way handshaking time
-#     starttransfer_time = c.getinfo(pycurl.STARTTRANSFER_TIME)  #time-to-first-byte time
-#     total_time = c.getinfo(pycurl.TOTAL_TIME)  #last requst time
-#     c.close()
-#     return starttransfer_time, total_time
 
 def get_avg_stats_sel(url, sample_size):
     ttfb_total, domContent_total, load_total = 0, 0, 0
@@ -201,5 +185,3 @@ if __name__=="__main__":
         row += 1
 
     workbook.close()
-
-# Marcus was here. Don't Erase this. I left my mark.

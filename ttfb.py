@@ -69,12 +69,12 @@ def get_stats_sel(url):
     ttfb = driver.execute_script("return " + responseStart + " - " + fetchStart)
     domContentLoaded = driver.execute_script("return " + domComplete + " - " + fetchStart)
     load = driver.execute_script("return " + loadEnd + " - " + fetchStart)
-    pageType = get_page_type(url, driver)
+    # pageType = get_page_type(url, driver)
 
 
     driver.quit()
 
-    return ttfb, domContentLoaded, load, pageType
+    return ttfb, domContentLoaded, load
 
 def get_page_type(url, driver):
 
@@ -108,8 +108,8 @@ def get_avg_stats_sel(url, sample_size):
         ttfb_total += stats[0]
         domContent_total += stats[1]
         load_total += stats[2]
-        pageType = stats[3]
-    return ttfb_total / sample_size, domContent_total / sample_size, load_total / sample_size, pageType
+        # pageType = stats[3]
+    return ttfb_total / sample_size, domContent_total / sample_size, load_total / sample_size
 
 def print_error_message(error):
     print
@@ -169,19 +169,23 @@ if __name__=="__main__":
 
     row, col, ttfb = 1, 0, ""
     dcl_time, load_time = 0, 0
+    stats = []
 
     # write data
     for link in get_hyperlinks(baseurl):
         worksheet.write(row, 0, link)
-        stats = get_avg_stats_sel(baseurl + link, sample_size)
+        while True :
+            stats = get_avg_stats_sel(baseurl + link, sample_size)
+            if stats[2] < 6000:
+                break
         ttfb = str(stats[0]) + 'ms'
         dom_time = str(stats[1]) + 'ms'
         load_time = str(stats[2]) + 'ms'
-        page_type = str(stats[3])
+        # page_type = str(stats[3])
         worksheet.write(row, 1, ttfb) # ttfb
         worksheet.write(row, 2, dom_time) # dom
         worksheet.write(row, 3, load_time) # load
-        print link + ' ' + ttfb + ' ' + dom_time + ' ' + load_time + ' ' + page_type
+        print link + ' ' + ttfb + ' ' + dom_time + ' ' + load_time
         row += 1
 
     workbook.close()

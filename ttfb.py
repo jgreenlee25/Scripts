@@ -25,6 +25,7 @@ from selenium import webdriver
 # TODO: try Firefox driver instead of Chrome driver
 # TODO: add a pause to ensure the page actually finishes loading
 
+# run: python ttfb.py <url> <options>
 
 class bcolors:
     HEADER = '\033[95m'
@@ -69,31 +70,32 @@ def get_stats_sel(url):
     domContentLoaded = driver.execute_script(
         "return " + domComplete + " - " + fetchStart)
     load = driver.execute_script("return " + loadEnd + " - " + fetchStart)
-    # pageType = get_page_type(url, driver)
+    pageType = get_page_type(url, driver)
 
     driver.quit()
 
     return ttfb, domContentLoaded, load
 
-
+# TODO: can this be rewritten?
 def get_page_type(url, driver):
     # get_page_type: loops through document until Page Type is found
-    page = driver.page_source
-    index = page.find("MarketLive.Reporting.templateType")
-    x = 37
-    currentChar = page[index + x]
-
     # The line in the document will look like this:
     # MarketLive.Reporting.templateType = 'INDEX';
-    type = ""
-
-    while (currentChar != "'"):  # until we get to the '
-        type += currentChar
-        x += 1
+    page = driver.page_source
+    pagetype = ""
+    try: # TODO: some documents don't appear to have this...
+        index = page.find("MarketLive.Reporting.templateType")
+        x = 37
         currentChar = page[index + x]
 
-    return type
+        while (currentChar != "'"):  # until we get to the '
+            type += currentChar
+            x += 1
+            currentChar = page[index + x]
+    except:
+        print("Unexpected error:", sys.exc_info()[0])
 
+    return pagetype
 
 def get_avg_stats_sel(url, sample_size):
     ttfb_total, domContent_total, load_total = 0, 0, 0

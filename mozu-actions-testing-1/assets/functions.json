@@ -1,0 +1,14 @@
+{
+  "exports": [
+    {
+      "id": "embedded.commerce.carts.addItem.before",
+      "virtualPath": "./dist\\commerce.carts.manifest.all.js",
+      "actionId": "embedded.commerce.carts.addItem.before"
+    },
+    {
+      "id": "embedded.platform.applications.install",
+      "virtualPath": "./dist\\platform.applications.manifest.all.js",
+      "actionId": "embedded.platform.applications.install"
+    }
+  ]
+}
